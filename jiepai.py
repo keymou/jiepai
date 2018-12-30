@@ -1,15 +1,14 @@
 '''今日头条街拍'''
 import re
-import json
 import os
-import requests
 from urllib.parse import urlencode
 from hashlib import md5
 from multiprocessing.pool import Pool
+import requests
 
 def  get_page(offset):
     """获取页面信息"""
-    params ={
+    params = {
         'offset': offset,
         'format': 'json',
         'keyword': '街拍',
@@ -38,7 +37,7 @@ def get_images(json):
                         'image': 'http:'+ image.get('url').replace('list', 'large'),
                         'title': title
                     }
-            except:
+            except TypeError:
                 continue
 
 
@@ -51,6 +50,7 @@ def save_image(item):
     try:
         response = requests.get(item.get('image'))
         if response.status_code == 200:
+            # 保存路径，图片的名称可以使用其内容的MD5 值
             file_path = '{0}/{1}.{2}'.format(title, md5(response.content).hexdigest(), 'jpg')
             if not os.path.exists(file_path):
                 with open(file_path, 'wb') as file_obj:
@@ -71,8 +71,8 @@ GROUP_START = 1
 GROUP_END = 20
 
 if __name__ == '__main__':
-    pool = Pool()
-    groups = ([x * 20 for x in range(GROUP_START, GROUP_END+1)])
-    pool.map(main, groups)
-    pool.close()
-    pool.join()
+    POOL = Pool()
+    GROUPS = ([x * 20 for x in range(GROUP_START, GROUP_END+1)])
+    POOL.map(main, GROUPS)
+    POOL.close()
+    POOL.join()
